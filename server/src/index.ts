@@ -9,6 +9,7 @@ import mongoose from 'mongoose';
 import { createEventController } from './controllers/createEventController';
 import { getEventsController } from './controllers/getEventsController';
 import { deleteEventController } from './controllers/deleteEventController';
+import EventModel from './models/Event';
 
 config(); // Function to import .env file to here
 
@@ -37,6 +38,18 @@ app.get("/hello", (req: Request, res: Response) => {
 app.post('/events', createEventController);
 app.get('/events', getEventsController);
 app.delete('/events/:id', deleteEventController);
+app.put('/events/:id', async (req: Request, res: Response) => {
+    const { title, startDate, endDate, location } = req.body;
+    const eventId = req.params.id;
+
+    try {
+        const event = await EventModel.updateOne({_id: eventId}, { title, startDate, endDate, location });
+        res.status(201).json(event);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
 const db = mongoose.connect(process.env.MONGO_URI!).then(() => {
     console.log(`listening on port ${PORT}`);

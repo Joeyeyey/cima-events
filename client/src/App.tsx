@@ -7,6 +7,7 @@ import { API_URL } from './api/config'
 import { EventDocument } from '../../server/src/models/Event'
 import { Box, Button, Divider, Grid, Modal, Typography } from '@mui/material'
 import { EditEvent } from './components/EditEvent'
+import ResponsiveAppBar from './components/ResponsiveAppBar'
 
 enum Action {
   Add = 'ADD',
@@ -94,6 +95,25 @@ function App() {
     );
   }
 
+  const renderCookieClicker = () => {
+    return (
+      <div className="cookie-clicker">
+        <button onClick={() => setCount((count) => count + 1)}>
+          🍪 Cookie clicker! {count}
+        </button>
+      </div>
+    );
+  }
+
+  const renderHomeImage = () => {
+    return (
+      <div className="home-image">
+        <a href="https://www.google.com" target="_blank">
+          <img src={'https://www.rd.com/wp-content/uploads/2018/02/30_Adorable-Puppy-Pictures-that-Will-Make-You-Melt_124167640_YamabikaY.jpg?fit=700,467'} />
+        </a>
+      </div>
+    );
+  }
 
   const renderDateTimePicker = (action: Action, event?: EventDocument) => {
     // Hide buttons in prod
@@ -181,16 +201,9 @@ function App() {
 
   return (
     <div className="App">
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          🍪 Cookie clicker! {count}
-        </button>
-      </div>
-      <div>
-        <a href="https://www.google.com" target="_blank">
-          <img src={'https://www.rd.com/wp-content/uploads/2018/02/30_Adorable-Puppy-Pictures-that-Will-Make-You-Melt_124167640_YamabikaY.jpg?fit=700,467'} />
-        </a>
-      </div>
+      {ResponsiveAppBar()}
+      {renderHomeImage()}
+      {renderCookieClicker()}
       {renderDateTimePicker(Action.Add)}
       <>
       <h2>Upcoming events!</h2>

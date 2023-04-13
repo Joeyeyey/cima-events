@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/Joeyeyey/cima-events">
-    <img alt="CIMA Events" src="/images/logo-transparent.png" width=400/>
+    <img alt="CIMA Events" src="/logo-transparent.png" width=400/>
   </a>
 </p>
 

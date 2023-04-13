@@ -16,12 +16,11 @@ they're subscribed to.
 
 This is the main repository for the CIMA Events project.
 
-The project is developed following the [MERN full-stack design architecture](https://www.mongodb.com/mern-stack) with the 
-addition of [Gatsby.js](https://www.gatsbyjs.com/) for the front-end.
+The project is developed following the [MERN full-stack design architecture](https://www.mongodb.com/mern-stack) with TypeScript.
 
 ## Running
 This project requires you to have Node.js installed as the main dependencies are installed using the built-in Node Package Manager (npm).
 
 Clone the repository. 
 
-Use `npm install` to install all the dependencies listed in the package.json.
+There are two folders for dependencies: server and client. Use `npm install` in each of them to install all the dependencies listed in their respective package.json. 

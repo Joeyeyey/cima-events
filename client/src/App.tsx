@@ -5,13 +5,21 @@ import { CreateEvent } from './components/CreateEvent'
 import EventCard from './components/EventCard'
 import { API_URL } from './api/config'
 import { EventDocument } from '../../server/src/models/Event'
-import { Box, Button, Divider, Grid, Modal, Typography } from '@mui/material'
+import { Box, Button, Divider, Grid, Modal, SpeedDial, SpeedDialAction, SpeedDialIcon, Typography } from '@mui/material'
 import { EditEvent } from './components/EditEvent'
+import EditCalendarIcon from '@mui/icons-material/EditCalendar';
 import ResponsiveAppBar from './components/ResponsiveAppBar'
+import CSS from 'csstype';
 
 enum Action {
   Add = 'ADD',
   Edit = 'EDIT',
+}
+
+const fixedBottomRightStyle: CSS.Properties = {
+  position: 'fixed',
+  bottom: '20px',
+  right: '20px',
 }
 
 const style = {
@@ -199,6 +207,23 @@ function App() {
     //  TODO: Update events with edited event
   };
 
+  const renderPlusButton = () => {
+    return (
+      <div className="speed-dial-button">
+        <SpeedDial
+          ariaLabel="SpeedDial openIcon example"
+          sx={{ position: 'absolute', bottom: 16, right: 16 }}
+          icon={<SpeedDialIcon openIcon={<EditCalendarIcon />} />}
+          onClick={() => {
+            setIsModalOpen(true);
+          }}
+          style={fixedBottomRightStyle}
+        />
+      </div>
+    )
+  }
+  
+
   return (
     <div className="App">
       {ResponsiveAppBar()}
@@ -210,6 +235,7 @@ function App() {
       </>
       <Divider/>
       {renderAllCards()}
+      {renderPlusButton()}
     </div>
   );
 }

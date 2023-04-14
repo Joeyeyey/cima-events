@@ -1,14 +1,20 @@
 import React, { useState } from 'react';
 import { API_URL } from '../api/config';
-import DatePicker from 'react-datepicker';
 import { EventDocument } from '../../../server/src/models/Event';
+import { Box, Button, InputAdornment, Modal, SpeedDial, SpeedDialIcon, TextField, Typography } from '@mui/material';
+import EditCalendarIcon from '@mui/icons-material/EditCalendar';
 
-interface EventProps {
-  title: string;
-  startDate: Date;
-  endDate: Date;
-  location: string;
-}
+import FileCopyIcon from '@mui/icons-material/FileCopyOutlined';
+import SaveIcon from '@mui/icons-material/Save';
+import PrintIcon from '@mui/icons-material/Print';
+import ShareIcon from '@mui/icons-material/Share';
+import SendIcon from '@mui/icons-material/Send';
+import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
+
+import { DatePicker, TimePicker } from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { Dayjs } from 'dayjs'
 
 interface CreateEventProps {
   onCreateEvent: (event: EventDocument) => void;
@@ -19,75 +25,126 @@ export function CreateEvent({ onCreateEvent }: CreateEventProps) {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [location, setLocation] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const confirmed = window.confirm(`Are you sure you want to create "${title}"?`);
-    if (confirmed) {
-        try {
-            const response = await fetch(`${API_URL}/events`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ title, startDate, endDate, location }),
-            });
-            if (response.ok) {
-                const event = await response.json();
-                onCreateEvent(event);
-            } else {
-                console.error('Failed to create event:', response.status, response.statusText);
-            }
-        } catch (error) {
-            console.error('Failed to create event:', error);
-        }
-    }
-
+  const style = {
+    position: 'absolute' as 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'white',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
   };
 
-  const handleTimeChange = (isStartTime: boolean, event: React.ChangeEvent<HTMLInputElement>) => {
-    const localDateTime = event.target.value;
-    const localDateTimeInMs = new Date(localDateTime).getTime();
-    const timeZoneOffsetInMs = new Date().getTimezoneOffset() * 60 * 1000;
-    const dateInLocalTimezone = new Date(localDateTimeInMs - timeZoneOffsetInMs);
-    isStartTime ? setStartDate(dateInLocalTimezone) : setEndDate(dateInLocalTimezone);
+  const actions = [
+    { icon: <FileCopyIcon />, name: 'Copy' },
+    { icon: <SaveIcon />, name: 'Save' },
+    { icon: <PrintIcon />, name: 'Print' },
+    { icon: <ShareIcon />, name: 'Share' },
+  ];
+
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch(`${API_URL}/events`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ title, startDate, endDate, location }),
+      });
+      if (response.ok) {
+        const event = await response.json();
+        onCreateEvent(event);
+      } else {
+        console.error('Failed to create event:', response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error('Failed to create event:', error);
+    }
+
+    setIsModalOpen(false);
+  };
+
+  // TODO: Time
+  const areAllFieldsComplete = () => {
+    return title.length > 0
+    && startDate !== null
+    && endDate !== null
+    && location.length > 0 
   }
 
   return (
     <>
-    <h2>Create an event?</h2>
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="title">Title:</label>
-        <input type="text" id="title" value={title} onChange={(event) => setTitle(event.target.value)} required />
-      </div>
-      <div>
-        <label htmlFor="startDate">Start date:</label>
-        <input
-          type="datetime-local"
-          id="startDate"
-          value={startDate ? startDate.toISOString().slice(0, -8) : ''}
-          onChange={(e) => {handleTimeChange(true, e)}}
-          required
+      <div className="speed-dial-button">
+        <SpeedDial
+          ariaLabel="SpeedDial openIcon example"
+          sx={{ position: 'absolute', bottom: 16, right: 16 }}
+          icon={<SpeedDialIcon openIcon={<EditCalendarIcon />} />}
+          onClick={() => {
+            setIsModalOpen(true);
+          }}
         />
       </div>
-      <div>
-        <label htmlFor="endDate">End date:</label>
-        <input
-          type="datetime-local"
-          id="endDate"
-          value={endDate ? endDate.toISOString().slice(0, -8) : ''}
-          onChange={(e) => {handleTimeChange(false, e)}}
-          required
-        />
+
+      <div className="create-event-modal">
+        <Modal
+          open={isModalOpen}
+          onClose={() => { setIsModalOpen(false) }}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+              Add Event
+            </Typography>
+            <div className="date-picker">
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <TextField
+                  onChange={(newTitle: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => { setTitle(newTitle.target.value) }}
+                  id="outlined-basic"
+                  label="Title"
+                  variant="outlined"
+                />
+                <TextField
+                  onChange={(newLocation: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => { setLocation(newLocation.target.value) }}
+                  id="outlined-basic"
+                  label="Location"
+                  variant="outlined"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <AddLocationAltIcon />
+                      </InputAdornment>
+                    ),
+                  }}
+
+                />
+                <DatePicker onChange={(newValue) => {setStartDate((newValue as Dayjs).toDate()); console.log((newValue as Dayjs).toDate());}}/>
+                <DatePicker onChange={(newValue) => {setEndDate((newValue as Dayjs).toDate()); console.log((newValue as Dayjs).toDate());}}/>
+                <TimePicker onChange={(newTime) => {
+                  if (startDate) {
+                    const newDate = startDate;
+                    newDate.setTime((newTime as Dayjs).toDate().getTime());
+                    console.log(newDate);
+                    setStartDate(newDate)
+                  }
+                }} />
+              </LocalizationProvider>
+            </div>
+            <Button
+              onClick={() => { handleSubmit() }}
+              variant="contained"
+              endIcon={<SendIcon />}
+              disabled={!areAllFieldsComplete()}
+            >
+              Send
+            </Button>
+          </Box>
+        </Modal>
       </div>
-      <div>
-        <label htmlFor="location">Location:</label>
-        <input type="text" id="location" value={location} onChange={(event) => setLocation(event.target.value)} required />
-      </div>
-      <button type="submit">Create Event</button>
-    </form>
-</>
+    </>
   );
 }

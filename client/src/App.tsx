@@ -135,29 +135,6 @@ function App() {
     : <EditEvent onEditEvent={handleEditEvent} event={event} action={Action.Edit} />;
   }
 
-  const renderEditEventModal = (event: EventDocument) => {
-    // event.title = event.title.concat('-hehexd');
-    // const confirmed = window.confirm(`Are you sure you want to delete "${event.title}"?`);
-    const { title, startDate, endDate, location } = event;
-    console.log('clicked!');
-    return (
-      <div className="modal-text">
-        <Button onClick={() => { setIsModalOpen(true) }}>Open modal</Button>
-        <Modal
-          open={isModalOpen}
-          onClose={() => { setIsModalOpen(false) }}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <Box sx={style}>
-            {/* {renderDateTimePicker(Action.Edit, event)} */}
-          </Box>
-        </Modal>
-      </div>
-    );
-
-  }
-
   const handleCreateEvent = (event: EventDocument) => {
     setEvents((prevEvents) => [...prevEvents, event]);
   };
@@ -235,7 +212,6 @@ function App() {
       </>
       <Divider/>
       {renderAllCards()}
-      {renderPlusButton()}
     </div>
   );
 }

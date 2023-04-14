@@ -3,6 +3,7 @@ import { API_URL } from '../api/config';
 import { EventDocument } from '../../../server/src/models/Event';
 import { Box, Button, InputAdornment, Modal, SpeedDial, SpeedDialIcon, TextField, Typography } from '@mui/material';
 import EditCalendarIcon from '@mui/icons-material/EditCalendar';
+import CSS from 'csstype';
 
 import FileCopyIcon from '@mui/icons-material/FileCopyOutlined';
 import SaveIcon from '@mui/icons-material/Save';
@@ -38,6 +39,12 @@ export function CreateEvent({ onCreateEvent }: CreateEventProps) {
     boxShadow: 24,
     p: 4,
   };
+
+  const fixedBottomRightStyle: CSS.Properties = {
+    position: 'fixed',
+    bottom: '20px',
+    right: '20px',
+  }
 
   const actions = [
     { icon: <FileCopyIcon />, name: 'Copy' },
@@ -86,6 +93,7 @@ export function CreateEvent({ onCreateEvent }: CreateEventProps) {
           onClick={() => {
             setIsModalOpen(true);
           }}
+          style={fixedBottomRightStyle}
         />
       </div>
 

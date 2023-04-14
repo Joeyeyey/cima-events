@@ -15,6 +15,12 @@ enum Action {
   Edit = 'EDIT',
 }
 
+const fixedBottomRightStyle: CSS.Properties = {
+  position: 'fixed',
+  bottom: '20px',
+  right: '20px',
+}
+
 const style = {
   position: 'absolute' as 'absolute',
   top: '50%',
@@ -139,29 +145,6 @@ function App() {
     : <EditEvent onEditEvent={handleEditEvent} event={event} action={Action.Edit} />;
   }
 
-  const renderEditEventModal = (event: EventDocument) => {
-    // event.title = event.title.concat('-hehexd');
-    // const confirmed = window.confirm(`Are you sure you want to delete "${event.title}"?`);
-    const { title, startDate, endDate, location } = event;
-    console.log('clicked!');
-    return (
-      <div className="modal-text">
-        <Button onClick={() => { setIsModalOpen(true) }}>Open modal</Button>
-        <Modal
-          open={isModalOpen}
-          onClose={() => { setIsModalOpen(false) }}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <Box sx={style}>
-            {/* {renderDateTimePicker(Action.Edit, event)} */}
-          </Box>
-        </Modal>
-      </div>
-    );
-
-  }
-
   const handleCreateEvent = (event: EventDocument) => {
     setEvents((prevEvents) => [...prevEvents, event]);
   };
@@ -240,6 +223,23 @@ function App() {
     // setEvents((prevEvents) => [...prevEvents, event]);
     //  TODO: Update events with edited event
   };
+
+  const renderPlusButton = () => {
+    return (
+      <div className="speed-dial-button">
+        <SpeedDial
+          ariaLabel="SpeedDial openIcon example"
+          sx={{ position: 'absolute', bottom: 16, right: 16 }}
+          icon={<SpeedDialIcon openIcon={<EditCalendarIcon />} />}
+          onClick={() => {
+            setIsModalOpen(true);
+          }}
+          style={fixedBottomRightStyle}
+        />
+      </div>
+    )
+  }
+  
 
   return (
     <div className="App">

@@ -6,7 +6,7 @@ import EventCard from './components/EventCard'
 import { API_URL } from './api/config'
 import { EventDocument } from '../../server/src/models/Event'
 import { CookieDocument } from '../../server/src/models/Cookie'
-import { Box, Button, Divider, Grid, Grow, Modal, SpeedDial, SpeedDialAction, SpeedDialIcon, Typography } from '@mui/material'
+import { Box, Divider, Grid, Grow, Modal } from '@mui/material'
 import { EditEvent } from './components/EditEvent'
 import ResponsiveAppBar from './components/ResponsiveAppBar'
 
@@ -15,19 +15,12 @@ enum Action {
   Edit = 'EDIT',
 }
 
-const fixedBottomRightStyle: CSS.Properties = {
-  position: 'fixed',
-  bottom: '20px',
-  right: '20px',
-}
-
 const style = {
   position: 'absolute' as 'absolute',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: 400,
-  // bgcolor: 'background.paper',
   bgcolor: '#242424',
   border: '2px solid #000',
   boxShadow: 24,
@@ -53,7 +46,6 @@ function App() {
 
       const cookieResponse = await fetch(`${API_URL}/cookie`);
       const fetchedCookies: CookieDocument[] = await cookieResponse.json();
-      // setCookieCount(cookieCount[0].count);
       setCookie(fetchedCookies[0]);
       setCookieCount(fetchedCookies[0].count);
     }
@@ -87,9 +79,7 @@ function App() {
               event={event}
               handleDeleteCard={(event) => { handleDeleteCard(event) }}
               handleEditCard={(event) => {
-                // renderEditEventModal(event);
                 setIsModalOpen(true);
-                // handleEditCard(event);
               }}
             />
             <Modal
@@ -99,9 +89,6 @@ function App() {
               aria-describedby="modal-modal-description"
             >
               <Box sx={style}>
-                {/* TODO: Edit event */}
-                {/* {renderDateTimePicker(Action.Edit, event)} */}
-                {/* // handleEditCard(event); */}
               </Box>
             </Modal>
           </Grid>
@@ -116,7 +103,6 @@ function App() {
         <button onClick={() => {
           handleUpdateCookie();
         }}>
-          {/* 🍪 Cookie clicker! {cookie ? cookie.count : 0} */}
           🍪 Cookie clicker! {cookieCount}
         </button>
       </div>
@@ -224,22 +210,6 @@ function App() {
     //  TODO: Update events with edited event
   };
 
-  const renderPlusButton = () => {
-    return (
-      <div className="speed-dial-button">
-        <SpeedDial
-          ariaLabel="SpeedDial openIcon example"
-          sx={{ position: 'absolute', bottom: 16, right: 16 }}
-          icon={<SpeedDialIcon openIcon={<EditCalendarIcon />} />}
-          onClick={() => {
-            setIsModalOpen(true);
-          }}
-          style={fixedBottomRightStyle}
-        />
-      </div>
-    )
-  }
-  
 
   return (
     <div className="App">

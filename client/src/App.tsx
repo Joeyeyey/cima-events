@@ -5,8 +5,10 @@ import { CreateEvent } from './components/CreateEvent'
 import EventCard from './components/EventCard'
 import { API_URL } from './api/config'
 import { EventDocument } from '../../server/src/models/Event'
-import { Box, Button, Divider, Grid, Modal, Typography } from '@mui/material'
+import { CookieDocument } from '../../server/src/models/Cookie'
+import { Box, Button, Divider, Grid, Grow, Modal, SpeedDial, SpeedDialAction, SpeedDialIcon, Typography } from '@mui/material'
 import { EditEvent } from './components/EditEvent'
+import ResponsiveAppBar from './components/ResponsiveAppBar'
 
 enum Action {
   Add = 'ADD',
@@ -28,7 +30,8 @@ const style = {
 
 function App() {
   // Deck
-  const [count, setCount] = useState(0)
+  const [cookieCount, setCookieCount] = useState<number>(0)
+  const [cookie, setCookie] = useState<CookieDocument>();
   const [title, setTitle] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -40,6 +43,13 @@ function App() {
       const response = await fetch(`${API_URL}/events`);
       const data = await response.json();
       setEvents(data);
+
+
+      const cookieResponse = await fetch(`${API_URL}/cookie`);
+      const fetchedCookies: CookieDocument[] = await cookieResponse.json();
+      // setCookieCount(cookieCount[0].count);
+      setCookie(fetchedCookies[0]);
+      setCookieCount(fetchedCookies[0].count);
     }
 
     fetchEvents();
@@ -94,8 +104,30 @@ function App() {
     );
   }
 
+  const renderCookieClicker = () => {
+    return (
+      <div className="cookie-clicker">
+        <button onClick={() => {
+          handleUpdateCookie();
+        }}>
+          {/* 🍪 Cookie clicker! {cookie ? cookie.count : 0} */}
+          🍪 Cookie clicker! {cookieCount}
+        </button>
+      </div>
+    );
+  }
 
-  const renderDateTimePicker = (action: Action, event?: EventDocument) => {
+  const renderHomeImage = () => {
+    return (
+      <div className="home-image">
+        <a href="https://www.google.com" target="_blank">
+          <img src={'https://www.rd.com/wp-content/uploads/2018/02/30_Adorable-Puppy-Pictures-that-Will-Make-You-Melt_124167640_YamabikaY.jpg?fit=700,467'} />
+        </a>
+      </div>
+    );
+  }
+
+  const renderBottomRightCreateButton = (action: Action, event?: EventDocument) => {
     // Hide buttons in prod
     const isEditable: boolean = `${API_URL}`.includes('localhost');
     if (!isEditable) {
@@ -140,6 +172,36 @@ function App() {
     setEvents(updatedEvents);
   };
 
+  const handleUpdateCookie = async () => {
+    if (!cookie) {
+      console.error('No cookie to update!');
+      return;
+    }
+
+    const newCookie: CookieDocument = cookie;
+    newCookie.count += 1;
+    setCookie(newCookie);
+    setCookieCount(newCookie.count);
+    const { count } = newCookie;
+
+    try {
+      const response = await fetch(`${API_URL}/cookie/${cookie._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ count }),
+      });
+      if (response.ok) {
+        const responseCookie = await response.json();
+      } else {
+        console.error('Failed to edit cookie:', response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error('Failed to edit cookie:', error);
+    }
+  }
+
   const handleDeleteCard = (event: EventDocument) => {
     fetch(`${API_URL}/events/${event._id}`, {
       method: 'DELETE',
@@ -181,22 +243,23 @@ function App() {
 
   return (
     <div className="App">
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          🍪 Cookie clicker! {count}
-        </button>
-      </div>
-      <div>
-        <a href="https://www.google.com" target="_blank">
-          <img src={'https://www.rd.com/wp-content/uploads/2018/02/30_Adorable-Puppy-Pictures-that-Will-Make-You-Melt_124167640_YamabikaY.jpg?fit=700,467'} />
-        </a>
-      </div>
-      {renderDateTimePicker(Action.Add)}
+      {ResponsiveAppBar()}
+      {renderHomeImage()}
+      {renderCookieClicker()}
+      {renderBottomRightCreateButton(Action.Add)}
       <>
       <h2>Upcoming events!</h2>
       </>
       <Divider/>
-      {renderAllCards()}
+      <Box sx={{ display: 'flex' }}>
+        <Grow
+          in={true}
+          style={{ transformOrigin: '0 0 0' }}
+          {...( { timeout: 1000 } )}
+        >
+          {renderAllCards()}
+        </Grow>
+      </Box>
     </div>
   );
 }

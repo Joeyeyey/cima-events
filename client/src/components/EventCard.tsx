@@ -27,7 +27,7 @@ const EventCard = ({ event, handleDeleteCard, handleEditCard }: Props) => {
 
   function renderDate(isStartDate: boolean, date: Date | undefined): string {
     if (!date) {
-      return 'no date!';
+      return `no ${isStartDate ? 'start' : 'end'} date!`;
     }
     const currentDate: Date = new Date(date);
     const formattedDate = currentDate.toLocaleDateString();

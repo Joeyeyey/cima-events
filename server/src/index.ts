@@ -10,6 +10,9 @@ import { createEventController } from './controllers/createEventController';
 import { getEventsController } from './controllers/getEventsController';
 import { deleteEventController } from './controllers/deleteEventController';
 import EventModel from './models/Event';
+import CookieSchema from './models/Cookie';
+import { addCookieController } from './controllers/addCookieController';
+import CookieModel from './models/Cookie';
 
 config(); // Function to import .env file to here
 
@@ -32,6 +35,31 @@ app.get("/", (req: Request, res: Response) => {
 
 app.get("/hello", (req: Request, res: Response) => {
     res.send('hello world!');
+});
+
+// Cookie Clicker
+app.get('/cookie', async (req, res) => {
+    console.log('res', res);
+    try {
+        const cookie: number[] = await CookieModel.find();
+        res.json(cookie);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+app.post('/cookie', addCookieController);
+app.put('/cookie/:id', async (req: Request, res: Response) => {
+    const { count } = req.body;
+    const cookieId = req.params.id;
+
+    try {
+        const newCookie = await CookieModel.updateOne({_id: cookieId}, { count });
+        res.status(201).json(newCookie);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
 });
 
 // Events

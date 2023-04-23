@@ -5,21 +5,14 @@ import { CreateEvent } from './components/CreateEvent'
 import EventCard from './components/EventCard'
 import { API_URL } from './api/config'
 import { EventDocument } from '../../server/src/models/Event'
-import { Box, Button, Divider, Grid, Modal, SpeedDial, SpeedDialAction, SpeedDialIcon, Typography } from '@mui/material'
+import { CookieDocument } from '../../server/src/models/Cookie'
+import { Box, Divider, Grid, Grow, Modal } from '@mui/material'
 import { EditEvent } from './components/EditEvent'
-import EditCalendarIcon from '@mui/icons-material/EditCalendar';
 import ResponsiveAppBar from './components/ResponsiveAppBar'
-import CSS from 'csstype';
 
 enum Action {
   Add = 'ADD',
   Edit = 'EDIT',
-}
-
-const fixedBottomRightStyle: CSS.Properties = {
-  position: 'fixed',
-  bottom: '20px',
-  right: '20px',
 }
 
 const style = {
@@ -28,7 +21,6 @@ const style = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: 400,
-  // bgcolor: 'background.paper',
   bgcolor: '#242424',
   border: '2px solid #000',
   boxShadow: 24,
@@ -37,7 +29,8 @@ const style = {
 
 function App() {
   // Deck
-  const [count, setCount] = useState(0)
+  const [cookieCount, setCookieCount] = useState<number>(0)
+  const [cookie, setCookie] = useState<CookieDocument>();
   const [title, setTitle] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -49,6 +42,12 @@ function App() {
       const response = await fetch(`${API_URL}/events`);
       const data = await response.json();
       setEvents(data);
+
+
+      const cookieResponse = await fetch(`${API_URL}/cookie`);
+      const fetchedCookies: CookieDocument[] = await cookieResponse.json();
+      setCookie(fetchedCookies[0]);
+      setCookieCount(fetchedCookies[0].count);
     }
 
     fetchEvents();
@@ -80,9 +79,7 @@ function App() {
               event={event}
               handleDeleteCard={(event) => { handleDeleteCard(event) }}
               handleEditCard={(event) => {
-                // renderEditEventModal(event);
                 setIsModalOpen(true);
-                // handleEditCard(event);
               }}
             />
             <Modal
@@ -92,9 +89,6 @@ function App() {
               aria-describedby="modal-modal-description"
             >
               <Box sx={style}>
-                {/* TODO: Edit event */}
-                {/* {renderDateTimePicker(Action.Edit, event)} */}
-                {/* // handleEditCard(event); */}
               </Box>
             </Modal>
           </Grid>
@@ -106,8 +100,10 @@ function App() {
   const renderCookieClicker = () => {
     return (
       <div className="cookie-clicker">
-        <button onClick={() => setCount((count) => count + 1)}>
-          🍪 Cookie clicker! {count}
+        <button onClick={() => {
+          handleUpdateCookie();
+        }}>
+          🍪 Cookie clicker! {cookieCount}
         </button>
       </div>
     );
@@ -123,7 +119,7 @@ function App() {
     );
   }
 
-  const renderDateTimePicker = (action: Action, event?: EventDocument) => {
+  const renderBottomRightCreateButton = (action: Action, event?: EventDocument) => {
     // Hide buttons in prod
     const isEditable: boolean = `${API_URL}`.includes('localhost');
     if (!isEditable) {
@@ -144,6 +140,36 @@ function App() {
     updatedEvents[updatedEvents.findIndex(el => el._id === event._id)] = event;
     setEvents(updatedEvents);
   };
+
+  const handleUpdateCookie = async () => {
+    if (!cookie) {
+      console.error('No cookie to update!');
+      return;
+    }
+
+    const newCookie: CookieDocument = cookie;
+    newCookie.count += 1;
+    setCookie(newCookie);
+    setCookieCount(newCookie.count);
+    const { count } = newCookie;
+
+    try {
+      const response = await fetch(`${API_URL}/cookie/${cookie._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ count }),
+      });
+      if (response.ok) {
+        const responseCookie = await response.json();
+      } else {
+        console.error('Failed to edit cookie:', response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error('Failed to edit cookie:', error);
+    }
+  }
 
   const handleDeleteCard = (event: EventDocument) => {
     fetch(`${API_URL}/events/${event._id}`, {
@@ -184,34 +210,26 @@ function App() {
     //  TODO: Update events with edited event
   };
 
-  const renderPlusButton = () => {
-    return (
-      <div className="speed-dial-button">
-        <SpeedDial
-          ariaLabel="SpeedDial openIcon example"
-          sx={{ position: 'absolute', bottom: 16, right: 16 }}
-          icon={<SpeedDialIcon openIcon={<EditCalendarIcon />} />}
-          onClick={() => {
-            setIsModalOpen(true);
-          }}
-          style={fixedBottomRightStyle}
-        />
-      </div>
-    )
-  }
-  
 
   return (
     <div className="App">
       {ResponsiveAppBar()}
       {renderHomeImage()}
       {renderCookieClicker()}
-      {renderDateTimePicker(Action.Add)}
+      {renderBottomRightCreateButton(Action.Add)}
       <>
       <h2>Upcoming events!</h2>
       </>
       <Divider/>
-      {renderAllCards()}
+      <Box sx={{ display: 'flex' }}>
+        <Grow
+          in={true}
+          style={{ transformOrigin: '0 0 0' }}
+          {...( { timeout: 1000 } )}
+        >
+          {renderAllCards()}
+        </Grow>
+      </Box>
     </div>
   );
 }

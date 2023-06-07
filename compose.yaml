@@ -1,0 +1,16 @@
+services:
+  client:
+    image: node:alpine
+    volumes:
+      - ./client:/client
+    working_dir: /client
+    command: sh -c "npm install && sleep infinity"
+    tty: true
+  
+  server:
+    image: node:alpine
+    volumes:
+      - ./server:/server
+    working_dir: /server
+    command: sh -c "npm install && sleep infinity"
+    tty: true

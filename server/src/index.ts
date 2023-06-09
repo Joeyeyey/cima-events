@@ -66,10 +66,13 @@ app.put("/cookie/:id", async (req: Request, res: Response) => {
 });
 
 // CimaEvents
-app.post("/events", createNewEvent);
 app.get("/events", getAllEvents);
 app.get("/events/:id", getEventById);
+
+app.post("/events", createNewEvent);
+
 app.delete("/events/:id", deleteEventById);
+
 app.put("/events/:id", updateEventById);
 
 const db = mongoose.connect(process.env.MONGO_URI!).then(() => {

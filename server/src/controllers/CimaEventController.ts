@@ -1,4 +1,3 @@
-import { Request, Response, response } from "express";
 import ICimaEvent, { CimaEventModel } from "../models/CimaEvent";
 
 /* This file contains simple CRUD functions for operating with cimaevents */

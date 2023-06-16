@@ -6,7 +6,7 @@ import {
     GetAllEvents,
     GetEvent,
     UpdateEvent,
-} from "../controllers/cimaeventController";
+} from "../controllers/CimaEventController";
 
 export async function getAllEvents(req: Request, res: Response) {
     try {
